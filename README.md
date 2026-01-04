@@ -1,2 +1,2 @@
-# absorbance_photometer
+# Absorbance Photometer
 A simple absorbance photometer
