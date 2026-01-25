@@ -1,4 +1,16 @@
 # Absorbance Photometer
+
+## Linux Jupyter installation
+
+
+Install Jupyter
+```
+pipx install jupyter --include-deps
+pipx inject jupyter ipympl ipysheet pyserial scikit-learn
+pipx inject jupyter matplotlib --force
+
+```
+
 A simple absorbance photometer
 
 ![Photometer v01 view 1](docs/images/photometer_v01_1.png "Photometer view 1")
