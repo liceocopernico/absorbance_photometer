@@ -2,6 +2,9 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_TSL2561_U.h>
 
+#define DAC_PIN A0
+
+
 
 const int cmd_TOGGLESTREAM = 's';
 const int cmd_HANDSHAKE = 'h';
@@ -11,6 +14,8 @@ const int cmd_PING = 'p';
 const int cmd_GET_LIGHT = 'r';
 const int cmd_SET_GAIN ='g';
 const int cmd_SET_INTEGRATION_TIME= 't';
+const int cmd_SET_LED_POWER='l';
+const int cmd_CLEAN_BUFFER='c';
 
 Adafruit_TSL2561_Unified tsl = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
 
@@ -19,16 +24,17 @@ uint16_t infrared = 0;
 String data;
 char command;
 int gain=16;
-int time=402;
+int int_time=402;
 bool debug = false;
 bool stream = false;
+
 void configureSensor(void)
 {
   //default gain x16
-  tsl.setGain(TSL2561_GAIN_16X);     /* 16x gain ... use in low light to boost sensitivity */
+  tsl.setGain(TSL2561_GAIN_16X);    
    
-  //default integration time 402ms
-  tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_402MS);  /* 16-bit data but slowest conversions */
+  //default integration time 402ms 16bit resolution
+  tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_402MS);  
 
 }
 
@@ -46,8 +52,19 @@ void setup(void)
     while(1);
   }
   configureSensor();
+// Set Arduino uno R4 dac resolution 0-4095
+  analogWriteResolution(12);
+//set initial voltage
+  analogWrite(DAC_PIN,10);
+
 }
 
+
+void serialFlush(){
+  while(Serial.available() > 0) {
+    char t = Serial.read();
+  }
+}
 
 void setIntegrationTime(int integration_time){
   switch (integration_time){
@@ -67,13 +84,16 @@ void setIntegrationTime(int integration_time){
 void loop(void) 
 {  
 
-  
-
   if (Serial.available()) {
       command = Serial.read();
       switch (command) {
+          case cmd_CLEAN_BUFFER:
+            serialFlush();
+            Serial.println("executed");
+            break;
           case cmd_HANDSHAKE:
             handshake();
+            Serial.println("executed");
             break;
           case cmd_DEBUG:
             debug = true;
@@ -83,12 +103,19 @@ void loop(void)
             break;
           case cmd_PING:
             Serial.println("PONG");
+            Serial.println("executed");
+            break;
+          case cmd_SET_LED_POWER:
+            data=Serial.readString();
+            analogWrite(DAC_PIN,data.toInt());
+            Serial.println("executed");
             break;
           case cmd_GET_LIGHT:
             tsl.getLuminosity (&broadband, &infrared);
             Serial.print(broadband);
             Serial.print("|");
             Serial.println(infrared);
+            Serial.println("executed");
             break;
           case cmd_SET_GAIN:
             data=Serial.readString();
@@ -98,11 +125,13 @@ void loop(void)
             }else if (gain==16){
               tsl.setGain(TSL2561_GAIN_16X); 
             }
+            Serial.println("executed");
+            break;
           case cmd_SET_INTEGRATION_TIME:
             data=Serial.readString();
-            time=data.toInt();
-            setIntegrationTime(time);
-
+            int_time=data.toInt();
+            setIntegrationTime(int_time);
+            Serial.println("executed");
              
    }
 
