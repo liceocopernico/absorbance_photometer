@@ -16,6 +16,7 @@ const int cmd_SET_GAIN ='g';
 const int cmd_SET_INTEGRATION_TIME= 't';
 const int cmd_SET_LED_POWER='l';
 const int cmd_CLEAN_BUFFER='c';
+const int cmd_GET_LED_POWER='i';
 
 Adafruit_TSL2561_Unified tsl = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
 
@@ -24,6 +25,7 @@ uint16_t infrared = 0;
 String data;
 char command;
 int gain=16;
+int led_power=100;
 int int_time=402;
 bool debug = false;
 bool stream = false;
@@ -55,7 +57,7 @@ void setup(void)
 // Set Arduino uno R4 dac resolution 0-4095
   analogWriteResolution(12);
 //set initial voltage
-  analogWrite(DAC_PIN,10);
+  analogWrite(DAC_PIN,led_power);
 
 }
 
@@ -98,8 +100,9 @@ void loop(void)
           case cmd_DEBUG:
             debug = true;
             break;
-          case cmd_NORMAL:
-            
+          case cmd_GET_LED_POWER:
+            Serial.println(led_power);
+            Serial.println("executed");
             break;
           case cmd_PING:
             Serial.println("PONG");
@@ -107,7 +110,8 @@ void loop(void)
             break;
           case cmd_SET_LED_POWER:
             data=Serial.readString();
-            analogWrite(DAC_PIN,data.toInt());
+            led_power=data.toInt();
+            analogWrite(DAC_PIN,led_power);
             Serial.println("executed");
             break;
           case cmd_GET_LIGHT:
