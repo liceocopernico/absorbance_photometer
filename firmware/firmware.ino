@@ -15,7 +15,7 @@ const int cmd_GET_LIGHT = 'r';
 const int cmd_SET_GAIN ='g';
 const int cmd_SET_INTEGRATION_TIME= 't';
 const int cmd_SET_LED_POWER='l';
-const int cmd_CLEAN_BUFFER='c';
+const int cmd_CLEAN_BUFFER='y';
 const int cmd_GET_LED_POWER='i';
 
 Adafruit_TSL2561_Unified tsl = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
